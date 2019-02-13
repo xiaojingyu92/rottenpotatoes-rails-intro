@@ -20,15 +20,31 @@ class MoviesController < ApplicationController
     @ratings = params[:ratings]
 
     if @ratings == nil
+      if session[:ratings] != nil
+        params[:ratings] = session[:ratings]
+        return redirect_to params: params
+      end
       @ratings = {}
       @all_ratings.each {|key| @ratings[key] = "1"}
+    else 
+      session[:ratings] = @ratings
     end
+
     @movies = Movie.all
     if @ratings.length > 0
       @movies = @movies.where(:rating => @ratings.keys)
     end
 
-    if(params[:sort]=='title')
+    if params[:sort] == nil
+      if session[:sort] != nil
+        params[:sort] = session[:sort]
+        return redirect_to params: params
+      end
+    else
+      session[:sort] = params[:sort]
+    end
+
+    if params[:sort]=='title' 
       @movies = @movies.order('title')
     elsif(params[:sort]=='release_date')
       @movies = @movies.order('release_date')
