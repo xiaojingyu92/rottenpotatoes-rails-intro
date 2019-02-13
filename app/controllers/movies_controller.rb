@@ -10,15 +10,28 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
+
+
   def index
     @title_header = params[:sort]=='title' ?'hilite':nil
     @release_date_header = params[:sort]=='release_date' ?'hilite':nil
+
+    @all_ratings = Movie.uniq.pluck(:rating) # extract the ratings
+    @ratings = params[:ratings]
+
+    if @ratings == nil
+      @ratings = {}
+      @all_ratings.each {|key| @ratings[key] = "1"}
+    end
+    @movies = Movie.all
+    if @ratings.length > 0
+      @movies = @movies.where(:rating => @ratings.keys)
+    end
+
     if(params[:sort]=='title')
-      @movies = Movie.all.order('title')
+      @movies = @movies.order('title')
     elsif(params[:sort]=='release_date')
-      @movies = Movie.all.order('release_date')
-    else
-      @movies = Movie.all
+      @movies = @movies.order('release_date')
     end
   end
 
